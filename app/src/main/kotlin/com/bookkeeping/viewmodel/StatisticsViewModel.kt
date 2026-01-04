@@ -38,6 +38,36 @@ data class StatisticsUiState(
 class StatisticsViewModel : ViewModel() {
     private val repository = FirebaseRepository()
     
+    // 分类名称到颜色的映射表，用于兼容旧数据
+    private val categoryColorMap = mapOf(
+        // 支出分类
+        "餐饮" to "#FF6B6B",
+        "交通" to "#4A90D9",
+        "购物" to "#9B59B6",
+        "娱乐" to "#E67E22",
+        "居住" to "#27AE60",
+        "通讯" to "#3498DB",
+        "医疗" to "#E74C3C",
+        "教育" to "#1ABC9C",
+        "其他" to "#95A5A6",
+        // 收入分类
+        "工资" to "#52C41A",
+        "奖金" to "#FAAD14",
+        "投资" to "#722ED1",
+        "兼职" to "#13C2C2"
+    )
+    
+    // 获取分类颜色，优先使用存储的颜色，若为默认值则根据名称匹配
+    private fun getCategoryColor(storedColor: String, categoryName: String, type: BillType): String {
+        // 如果存储的颜色不是默认值，直接使用
+        if (storedColor != "#4A90D9") {
+            return storedColor
+        }
+        // 否则根据分类名称查找对应颜色
+        return categoryColorMap[categoryName] 
+            ?: if (type == BillType.INCOME) "#52C41A" else "#4A90D9"
+    }
+    
     private val _uiState = mutableStateOf(StatisticsUiState())
     val uiState: State<StatisticsUiState> = _uiState
     
@@ -145,11 +175,17 @@ class StatisticsViewModel : ViewModel() {
                                 val percentage = (categoryTotal / total).toFloat()
                                 
                                 val firstBill = billsInCategory.first()
+                                // 使用颜色映射来兼容旧数据
+                                val resolvedColor = getCategoryColor(
+                                    firstBill.categoryColor,
+                                    firstBill.categoryName,
+                                    type
+                                )
                                 val category = Category(
                                     id = categoryId,
                                     name = firstBill.categoryName,
                                     icon = firstBill.categoryIcon,
-                                    color = firstBill.categoryColor,
+                                    color = resolvedColor,
                                     type = type
                                 )
                                 
