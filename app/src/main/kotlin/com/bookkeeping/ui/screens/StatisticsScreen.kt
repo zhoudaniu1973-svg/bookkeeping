@@ -2,6 +2,7 @@ package com.bookkeeping.ui.screens
 
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -33,6 +34,9 @@ fun StatisticsScreen(
     viewModel: StatisticsViewModel = viewModel()
 ) {
     val uiState by viewModel.uiState
+    
+    // 控制明细弹窗的状态
+    var selectedCategoryStat by remember { mutableStateOf<CategoryStat?>(null) }
 
     Column(
         modifier = Modifier
@@ -89,7 +93,10 @@ fun StatisticsScreen(
                         contentPadding = PaddingValues(bottom = 16.dp)
                     ) {
                         items(uiState.categoryStats) { stat ->
-                            CategoryStatItem(stat)
+                            CategoryStatItem(
+                                stat = stat,
+                                onClick = { selectedCategoryStat = stat }
+                            )
                         }
                     }
                 } else {
@@ -106,6 +113,14 @@ fun StatisticsScreen(
                 }
             }
         }
+    }
+    
+    // 显示分类明细弹窗
+    selectedCategoryStat?.let { stat ->
+        CategoryDetailDialog(
+            stat = stat,
+            onDismiss = { selectedCategoryStat = null }
+        )
     }
 }
 
@@ -419,10 +434,14 @@ fun PieChart(
 }
 
 @Composable
-fun CategoryStatItem(stat: CategoryStat) {
+fun CategoryStatItem(
+    stat: CategoryStat,
+    onClick: () -> Unit = {}
+) {
     Row(
         modifier = Modifier
             .fillMaxWidth()
+            .clickable { onClick() }
             .padding(horizontal = 16.dp, vertical = 12.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
@@ -469,5 +488,103 @@ fun CategoryStatItem(stat: CategoryStat) {
             style = BodyMedium,
             fontWeight = FontWeight.Bold
         )
+        
+        // 箭头指示器
+        Spacer(modifier = Modifier.width(8.dp))
+        Text(">", color = TextTertiary)
     }
+}
+
+/**
+ * 分类明细弹窗
+ * 显示该分类下的所有账单
+ */
+@Composable
+fun CategoryDetailDialog(
+    stat: CategoryStat,
+    onDismiss: () -> Unit
+) {
+    val dateFormat = remember { java.text.SimpleDateFormat("MM-dd HH:mm", java.util.Locale.getDefault()) }
+    
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        title = {
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                Text(stat.category.icon, fontSize = 24.sp)
+                Spacer(modifier = Modifier.width(8.dp))
+                Text(
+                    text = stat.category.name,
+                    style = MaterialTheme.typography.titleLarge
+                )
+            }
+        },
+        text = {
+            Column {
+                // 汇总信息
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .background(Background, RoundedCornerShape(8.dp))
+                        .padding(12.dp),
+                    horizontalArrangement = Arrangement.SpaceBetween
+                ) {
+                    Column {
+                        Text("共${stat.bills.size}笔", style = BodySmall, color = TextSecondary)
+                        Text(
+                            "¥${String.format("%.2f", stat.amount)}",
+                            style = MaterialTheme.typography.titleMedium,
+                            fontWeight = FontWeight.Bold,
+                            color = try { Color(android.graphics.Color.parseColor(stat.category.color)) } catch (e: Exception) { Primary }
+                        )
+                    }
+                    Text(
+                        "${String.format("%.1f", stat.percentage * 100)}%",
+                        style = MaterialTheme.typography.titleMedium,
+                        fontWeight = FontWeight.Bold
+                    )
+                }
+                
+                Spacer(modifier = Modifier.height(12.dp))
+                
+                // 账单列表
+                LazyColumn(
+                    modifier = Modifier.heightIn(max = 300.dp)
+                ) {
+                    items(stat.bills.sortedByDescending { it.billDate }) { bill ->
+                        Row(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(vertical = 8.dp),
+                            horizontalArrangement = Arrangement.SpaceBetween,
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            Column(modifier = Modifier.weight(1f)) {
+                                Text(
+                                    text = bill.note.ifEmpty { stat.category.name },
+                                    style = BodyMedium,
+                                    maxLines = 1
+                                )
+                                Text(
+                                    text = dateFormat.format(bill.billDate),
+                                    style = BodySmall,
+                                    color = TextTertiary
+                                )
+                            }
+                            Text(
+                                text = "¥${String.format("%.2f", bill.amount)}",
+                                style = BodyMedium,
+                                fontWeight = FontWeight.Bold
+                            )
+                        }
+                        HorizontalDivider(color = Divider)
+                    }
+                }
+            }
+        },
+        confirmButton = {
+            TextButton(onClick = onDismiss) {
+                Text("关闭")
+            }
+        }
+    )
 }

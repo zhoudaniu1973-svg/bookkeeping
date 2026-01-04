@@ -19,7 +19,8 @@ enum class StatsPeriod {
 data class CategoryStat(
     val category: Category,
     val amount: Double,
-    val percentage: Float
+    val percentage: Float,
+    val bills: List<com.bookkeeping.data.model.Bill> = emptyList() // 该分类下的账单列表
 )
 
 data class StatisticsUiState(
@@ -189,7 +190,7 @@ class StatisticsViewModel : ViewModel() {
                                     type = type
                                 )
                                 
-                                CategoryStat(category, categoryTotal, percentage)
+                                CategoryStat(category, categoryTotal, percentage, billsInCategory)
                             }
                             .sortedByDescending { it.amount }
                     } else {
