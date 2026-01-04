@@ -4,9 +4,9 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.ArrowBack
-import androidx.compose.material.icons.filled.ArrowForward
-import androidx.compose.material.icons.filled.ExitToApp
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.automirrored.filled.ArrowForward
+import androidx.compose.material.icons.automirrored.filled.ExitToApp
 import androidx.compose.material.icons.filled.Share
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
@@ -40,7 +40,7 @@ fun SettingsScreen(
                 title = { Text("设置") },
                 navigationIcon = {
                     IconButton(onClick = onBack) {
-                        Icon(Icons.Default.ArrowBack, contentDescription = "Back")
+                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back")
                     }
                 }
             )
@@ -79,7 +79,7 @@ fun SettingsScreen(
 
             // Actions
             SettingsItem(
-                icon = Icons.Default.Share,
+                icon = Icons.Filled.Share,
                 title = "导出账单数据 (CSV)",
                 onClick = { settingsViewModel.exportData(context) }
             )
@@ -87,7 +87,7 @@ fun SettingsScreen(
             Spacer(modifier = Modifier.height(8.dp))
             
             SettingsItem(
-                icon = Icons.Default.ExitToApp,
+                icon = Icons.AutoMirrored.Filled.ExitToApp,
                 title = "退出登录",
                 textColor = MaterialTheme.colorScheme.error,
                 onClick = onLogout
@@ -116,7 +116,7 @@ fun SettingsItem(
             Icon(imageVector = icon, contentDescription = null, tint = textColor)
             Spacer(modifier = Modifier.width(16.dp))
             Text(text = title, style = MaterialTheme.typography.bodyLarge, color = textColor, modifier = Modifier.weight(1f))
-            Icon(imageVector = Icons.Default.ArrowForward, contentDescription = null, tint = Color.Gray)
+            Icon(imageVector = Icons.AutoMirrored.Filled.ArrowForward, contentDescription = null, tint = Color.Gray)
         }
     }
 }

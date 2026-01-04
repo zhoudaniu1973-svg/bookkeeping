@@ -11,8 +11,8 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Add
-import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -46,7 +46,7 @@ fun CategoriesScreen(
                 title = { Text("分类管理") },
                 navigationIcon = {
                     IconButton(onClick = onBack) {
-                        Icon(Icons.Default.ArrowBack, contentDescription = "Back")
+                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back")
                     }
                 },
                 actions = {
@@ -54,7 +54,7 @@ fun CategoriesScreen(
                         editingCategory = null
                         showEditDialog = true
                     }) {
-                        Icon(Icons.Default.Add, contentDescription = "Add Category")
+                        Icon(Icons.Filled.Add, contentDescription = "Add Category")
                     }
                 }
             )
@@ -269,7 +269,7 @@ fun CategoryEditDialog(
                         ) {
                             if (selectedColor == color) {
                                 Icon(
-                                    imageVector = Icons.Default.Add, // Using Add as checkmark placeholder or just dot
+                                    imageVector = Icons.Filled.Add, // Using Add as checkmark placeholder or just dot
                                     contentDescription = null,
                                     tint = Color.White,
                                     modifier = Modifier.align(Alignment.Center)

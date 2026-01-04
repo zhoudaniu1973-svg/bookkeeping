@@ -1,15 +1,15 @@
 [
     {
-        "merged": "C:\\Users\\zhoud\\.gradle\\daemon\\8.14.3\\com.bookkeeping.app-merged_res-61:\\drawable_ic_launcher.xml.flat",
-        "source": "C:\\Users\\zhoud\\.gradle\\daemon\\8.14.3\\com.bookkeeping.app-main-63:\\drawable\\ic_launcher.xml"
+        "merged": "com.bookkeeping.app-merged_res-61:/xml_backup_rules.xml.flat",
+        "source": "com.bookkeeping.app-main-63:/xml/backup_rules.xml"
     },
     {
-        "merged": "C:\\Users\\zhoud\\.gradle\\daemon\\8.14.3\\com.bookkeeping.app-merged_res-61:\\xml_data_extraction_rules.xml.flat",
-        "source": "C:\\Users\\zhoud\\.gradle\\daemon\\8.14.3\\com.bookkeeping.app-main-63:\\xml\\data_extraction_rules.xml"
+        "merged": "com.bookkeeping.app-merged_res-61:/drawable_ic_launcher.xml.flat",
+        "source": "com.bookkeeping.app-main-63:/drawable/ic_launcher.xml"
     },
     {
-        "merged": "C:\\Users\\zhoud\\.gradle\\daemon\\8.14.3\\com.bookkeeping.app-merged_res-61:\\xml_backup_rules.xml.flat",
-        "source": "C:\\Users\\zhoud\\.gradle\\daemon\\8.14.3\\com.bookkeeping.app-main-63:\\xml\\backup_rules.xml"
+        "merged": "com.bookkeeping.app-merged_res-61:/xml_data_extraction_rules.xml.flat",
+        "source": "com.bookkeeping.app-main-63:/xml/data_extraction_rules.xml"
     },
     {
         "merged": "com.bookkeeping.app-merged_res-61:/xml_file_paths.xml.flat",

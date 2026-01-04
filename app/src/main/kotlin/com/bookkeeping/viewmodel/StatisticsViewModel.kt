@@ -10,6 +10,12 @@ import com.bookkeeping.data.repository.FirebaseRepository
 import kotlinx.coroutines.launch
 import java.util.Calendar
 
+// 统计周期枚举
+enum class StatsPeriod {
+    MONTH,  // 按月统计
+    YEAR    // 按年统计
+}
+
 data class CategoryStat(
     val category: Category,
     val amount: Double,
@@ -18,10 +24,13 @@ data class CategoryStat(
 
 data class StatisticsUiState(
     val isLoading: Boolean = false,
+    val statsPeriod: StatsPeriod = StatsPeriod.MONTH, // 统计周期
     val currentYear: Int = Calendar.getInstance().get(Calendar.YEAR),
     val currentMonth: Int = Calendar.getInstance().get(Calendar.MONTH) + 1,
     val billType: BillType = BillType.EXPENSE,
     val totalAmount: Double = 0.0,
+    val totalIncome: Double = 0.0,
+    val totalExpense: Double = 0.0,
     val categoryStats: List<CategoryStat> = emptyList(),
     val error: String? = null
 )
@@ -36,34 +45,57 @@ class StatisticsViewModel : ViewModel() {
         loadData()
     }
     
+    // 设置统计周期（月/年）
+    fun setStatsPeriod(period: StatsPeriod) {
+        _uiState.value = _uiState.value.copy(statsPeriod = period)
+        loadData()
+    }
+    
     fun setBillType(type: BillType) {
         _uiState.value = _uiState.value.copy(billType = type)
         loadData()
     }
     
-    fun previousMonth() {
-        var year = _uiState.value.currentYear
-        var month = _uiState.value.currentMonth - 1
-        if (month < 1) {
-            month = 12
-            year--
+    // 上一个周期（根据当前模式决定是上个月还是上一年）
+    fun previousPeriod() {
+        val state = _uiState.value
+        if (state.statsPeriod == StatsPeriod.MONTH) {
+            var year = state.currentYear
+            var month = state.currentMonth - 1
+            if (month < 1) {
+                month = 12
+                year--
+            }
+            _uiState.value = state.copy(currentYear = year, currentMonth = month)
+        } else {
+            // 年模式：减一年
+            _uiState.value = state.copy(currentYear = state.currentYear - 1)
         }
-        _uiState.value = _uiState.value.copy(currentYear = year, currentMonth = month)
         loadData()
     }
     
-    fun nextMonth() {
-        var year = _uiState.value.currentYear
-        var month = _uiState.value.currentMonth + 1
-        if (month > 12) {
-            month = 1
-            year++
+    // 下一个周期
+    fun nextPeriod() {
+        val state = _uiState.value
+        if (state.statsPeriod == StatsPeriod.MONTH) {
+            var year = state.currentYear
+            var month = state.currentMonth + 1
+            if (month > 12) {
+                month = 1
+                year++
+            }
+            _uiState.value = state.copy(currentYear = year, currentMonth = month)
+        } else {
+            // 年模式：加一年
+            _uiState.value = state.copy(currentYear = state.currentYear + 1)
         }
-        _uiState.value = _uiState.value.copy(currentYear = year, currentMonth = month)
         loadData()
     }
     
-    // Explicitly public reload method if needed by UI pull-to-refresh
+    // 保留旧方法名以兼容现有调用
+    fun previousMonth() = previousPeriod()
+    fun nextMonth() = nextPeriod()
+    
     fun reload() {
         loadData()
     }
@@ -77,19 +109,33 @@ class StatisticsViewModel : ViewModel() {
                     val year = _uiState.value.currentYear
                     val month = _uiState.value.currentMonth
                     val type = _uiState.value.billType
+                    val period = _uiState.value.statsPeriod
                     
-                    // Filter bills
-                    val filteredBills = bills.filter { bill ->
+                    // 根据统计周期过滤账单
+                    val periodBills = bills.filter { bill ->
                         val cal = Calendar.getInstance().apply { time = bill.billDate }
-                        cal.get(Calendar.YEAR) == year && 
-                        (cal.get(Calendar.MONTH) + 1) == month &&
-                        bill.type == type
+                        val billYear = cal.get(Calendar.YEAR)
+                        val billMonth = cal.get(Calendar.MONTH) + 1
+                        
+                        if (period == StatsPeriod.MONTH) {
+                            billYear == year && billMonth == month
+                        } else {
+                            // 年模式：只匹配年份
+                            billYear == year
+                        }
                     }
                     
-                    // Calculate total
+                    // 计算总收入和总支出
+                    val totalIncome = periodBills.filter { it.type == BillType.INCOME }.sumOf { it.amount }
+                    val totalExpense = periodBills.filter { it.type == BillType.EXPENSE }.sumOf { it.amount }
+                    
+                    // 按类型过滤用于分类统计
+                    val filteredBills = periodBills.filter { it.type == type }
+                    
+                    // 计算选中类型的总额
                     val total = filteredBills.sumOf { it.amount }
                     
-                    // Group by category and calculate stats
+                    // 按分类分组并计算统计信息
                     val stats = if (total > 0) {
                         filteredBills.groupBy { it.categoryId }
                             .mapNotNull { (categoryId, billsInCategory) ->
@@ -98,16 +144,12 @@ class StatisticsViewModel : ViewModel() {
                                 val categoryTotal = billsInCategory.sumOf { it.amount }
                                 val percentage = (categoryTotal / total).toFloat()
                                 
-                                // Construct a Category object (assuming we have basic info from the first bill)
-                                // ideally we should fetch Category from DB, but for now we use what's on the bill
-                                // or reconstruction. 
-                                // Since Bill stores categoryName/Icon/Color directly, we can use that.
                                 val firstBill = billsInCategory.first()
                                 val category = Category(
                                     id = categoryId,
                                     name = firstBill.categoryName,
                                     icon = firstBill.categoryIcon,
-                                    color = "#4A90D9",
+                                    color = firstBill.categoryColor,
                                     type = type
                                 )
                                 
@@ -121,6 +163,8 @@ class StatisticsViewModel : ViewModel() {
                     _uiState.value = _uiState.value.copy(
                         isLoading = false,
                         totalAmount = total,
+                        totalIncome = totalIncome,
+                        totalExpense = totalExpense,
                         categoryStats = stats
                     )
                 } catch (e: Exception) {

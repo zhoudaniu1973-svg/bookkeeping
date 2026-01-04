@@ -123,6 +123,7 @@ class BillViewModel : ViewModel() {
                     categoryId = state.selectedCategory.id,
                     categoryName = state.selectedCategory.name,
                     categoryIcon = state.selectedCategory.icon,
+                    categoryColor = state.selectedCategory.color, // 保存分类颜色
                     note = state.note,
                     billDate = state.billDate
                 )

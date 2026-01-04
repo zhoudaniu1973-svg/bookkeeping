@@ -1,0 +1,1 @@
+"解析根目录 README.md 和 gradle/libs.versions.toml。请按照 TOML 里的版本定义，通过 alias 模式重构所有 build.gradle.kts 文件。禁止修改版本号，完成后运行 ./gradlew :app:assembleDebug 验证。"

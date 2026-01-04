@@ -1,0 +1,18 @@
+[
+    {
+        "merged": "com.bookkeeping.app-debug-63:/xml_file_paths.xml.flat",
+        "source": "com.bookkeeping.app-main-65:/xml/file_paths.xml"
+    },
+    {
+        "merged": "com.bookkeeping.app-debug-63:/xml_data_extraction_rules.xml.flat",
+        "source": "com.bookkeeping.app-main-65:/xml/data_extraction_rules.xml"
+    },
+    {
+        "merged": "com.bookkeeping.app-debug-63:/drawable_ic_launcher.xml.flat",
+        "source": "com.bookkeeping.app-main-65:/drawable/ic_launcher.xml"
+    },
+    {
+        "merged": "com.bookkeeping.app-debug-63:/xml_backup_rules.xml.flat",
+        "source": "com.bookkeeping.app-main-65:/xml/backup_rules.xml"
+    }
+]

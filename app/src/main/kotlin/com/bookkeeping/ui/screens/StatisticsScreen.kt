@@ -23,8 +23,7 @@ import com.bookkeeping.data.model.BillType
 import com.bookkeeping.ui.theme.*
 import com.bookkeeping.viewmodel.CategoryStat
 import com.bookkeeping.viewmodel.StatisticsViewModel
-import kotlin.math.cos
-import kotlin.math.sin
+import com.bookkeeping.viewmodel.StatsPeriod
 
 @Composable
 fun StatisticsScreen(
@@ -38,14 +37,16 @@ fun StatisticsScreen(
             .fillMaxSize()
             .background(Background)
     ) {
-        // Header (Month Selector)
-        HomeHeader(
+        // 统计专用 Header，支持月/年切换
+        StatisticsHeader(
+            statsPeriod = uiState.statsPeriod,
             currentYear = uiState.currentYear,
             currentMonth = uiState.currentMonth,
-            income = 0.0, // Not needed here, or could show total
-            expense = 0.0,
-            onPreviousMonth = { viewModel.previousMonth() },
-            onNextMonth = { viewModel.nextMonth() }
+            income = uiState.totalIncome,
+            expense = uiState.totalExpense,
+            onPeriodChange = { viewModel.setStatsPeriod(it) },
+            onPreviousPeriod = { viewModel.previousPeriod() },
+            onNextPeriod = { viewModel.nextPeriod() }
         )
 
         // Content
@@ -88,14 +89,112 @@ fun StatisticsScreen(
                     }
                 } else {
                     // Empty State
-                     Box(
+                    val emptyText = if (uiState.statsPeriod == StatsPeriod.MONTH) "本月暂无数据" else "本年暂无数据"
+                    Box(
                         modifier = Modifier
                             .fillMaxSize()
                             .weight(1f),
                         contentAlignment = Alignment.Center
                     ) {
-                         Text("本月暂无数据", color = TextTertiary)
+                        Text(emptyText, color = TextTertiary)
                     }
+                }
+            }
+        }
+    }
+}
+
+/**
+ * 统计页面专用 Header
+ * 支持月/年周期切换
+ */
+@Composable
+fun StatisticsHeader(
+    statsPeriod: StatsPeriod,
+    currentYear: Int,
+    currentMonth: Int,
+    income: Double,
+    expense: Double,
+    onPeriodChange: (StatsPeriod) -> Unit,
+    onPreviousPeriod: () -> Unit,
+    onNextPeriod: () -> Unit
+) {
+    Card(
+        modifier = Modifier.fillMaxWidth(),
+        colors = CardDefaults.cardColors(containerColor = Primary),
+        shape = androidx.compose.ui.graphics.RectangleShape
+    ) {
+        Column(modifier = Modifier.padding(16.dp)) {
+            // 周期切换按钮（月/年）
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(bottom = 8.dp),
+                horizontalArrangement = Arrangement.Center
+            ) {
+                Row(
+                    modifier = Modifier
+                        .background(Color.White.copy(alpha = 0.2f), RoundedCornerShape(16.dp))
+                        .padding(2.dp)
+                ) {
+                    TextButton(
+                        onClick = { onPeriodChange(StatsPeriod.MONTH) },
+                        colors = ButtonDefaults.textButtonColors(
+                            containerColor = if (statsPeriod == StatsPeriod.MONTH) Color.White else Color.Transparent,
+                            contentColor = if (statsPeriod == StatsPeriod.MONTH) Primary else Color.White
+                        ),
+                        modifier = Modifier.width(60.dp)
+                    ) {
+                        Text("月")
+                    }
+                    TextButton(
+                        onClick = { onPeriodChange(StatsPeriod.YEAR) },
+                        colors = ButtonDefaults.textButtonColors(
+                            containerColor = if (statsPeriod == StatsPeriod.YEAR) Color.White else Color.Transparent,
+                            contentColor = if (statsPeriod == StatsPeriod.YEAR) Primary else Color.White
+                        ),
+                        modifier = Modifier.width(60.dp)
+                    ) {
+                        Text("年")
+                    }
+                }
+            }
+            
+            // 日期选择器
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                TextButton(onClick = onPreviousPeriod) {
+                    Text("<", color = Color.White, fontSize = 18.sp)
+                }
+                Text(
+                    text = if (statsPeriod == StatsPeriod.MONTH) 
+                        "${currentYear}年${currentMonth}月" 
+                    else 
+                        "${currentYear}年",
+                    style = MaterialTheme.typography.titleLarge,
+                    color = Color.White,
+                    modifier = Modifier.weight(1f),
+                    textAlign = TextAlign.Center
+                )
+                TextButton(onClick = onNextPeriod) {
+                    Text(">", color = Color.White, fontSize = 18.sp)
+                }
+            }
+            
+            Spacer(modifier = Modifier.height(16.dp))
+            
+            // 收支汇总
+            val periodLabel = if (statsPeriod == StatsPeriod.MONTH) "本月" else "本年"
+            Row(modifier = Modifier.fillMaxWidth()) {
+                Column(modifier = Modifier.weight(1f)) {
+                    Text("${periodLabel}支出", color = Color.White.copy(alpha = 0.8f))
+                    Text("¥${String.format("%.2f", expense)}", color = Color.White, fontSize = 24.sp, fontWeight = FontWeight.Bold)
+                }
+                Column(modifier = Modifier.weight(1f)) {
+                    Text("${periodLabel}收入", color = Color.White.copy(alpha = 0.8f))
+                    Text("¥${String.format("%.2f", income)}", color = Color.White, fontSize = 24.sp, fontWeight = FontWeight.Bold)
                 }
             }
         }
@@ -213,11 +312,11 @@ fun CategoryStatItem(stat: CategoryStat) {
             Spacer(modifier = Modifier.height(4.dp))
             // Progress Bar
             LinearProgressIndicator(
-                progress = stat.percentage,
+                progress = { stat.percentage },
                 modifier = Modifier
                     .fillMaxWidth()
                     .height(6.dp)
-                    .background(Color.Transparent, RoundedCornerShape(3.dp)), // Clip rounds the indicator
+                    .background(Color.Transparent, RoundedCornerShape(3.dp)),
                 color = try { Color(android.graphics.Color.parseColor(stat.category.color)) } catch (e:Exception) { Primary },
                 trackColor = Background
             )

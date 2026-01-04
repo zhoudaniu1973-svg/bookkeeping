@@ -19,6 +19,7 @@ enum class BillType {
  * @param categoryId 分类ID
  * @param categoryName 分类名称
  * @param categoryIcon 分类图标
+ * @param categoryColor 分类颜色
  * @param note 备注
  * @param billDate 账单日期
  * @param createdAt 创建时间
@@ -30,6 +31,7 @@ data class Bill(
     val categoryId: String = "",
     val categoryName: String = "",
     val categoryIcon: String = "",
+    val categoryColor: String = "#4A90D9", // 新增分类颜色字段
     val note: String = "",
     val billDate: Date = Date(),
     val createdAt: Date = Date()
@@ -40,6 +42,7 @@ data class Bill(
         "categoryId" to categoryId,
         "categoryName" to categoryName,
         "categoryIcon" to categoryIcon,
+        "categoryColor" to categoryColor,
         "note" to note,
         "billDate" to billDate,
         "createdAt" to createdAt
@@ -58,6 +61,7 @@ data class Bill(
                 categoryId = map["categoryId"] as? String ?: "",
                 categoryName = map["categoryName"] as? String ?: "",
                 categoryIcon = map["categoryIcon"] as? String ?: "",
+                categoryColor = map["categoryColor"] as? String ?: "#4A90D9",
                 note = map["note"] as? String ?: "",
                 billDate = (map["billDate"] as? com.google.firebase.Timestamp)?.toDate() ?: Date(),
                 createdAt = (map["createdAt"] as? com.google.firebase.Timestamp)?.toDate() ?: Date()

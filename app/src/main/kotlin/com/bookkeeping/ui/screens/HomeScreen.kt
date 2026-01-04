@@ -8,7 +8,11 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.DateRange
 import androidx.compose.material.icons.filled.Delete
+import androidx.compose.material.icons.filled.List
+import androidx.compose.material.icons.filled.Person
+import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -44,13 +48,13 @@ fun HomeScreen(
         bottomBar = {
             NavigationBar {
                 NavigationBarItem(
-                    icon = { Text("明细") }, // 暂时用文字代替图标
+                    icon = { Icon(Icons.Filled.List, contentDescription = "明细") },
                     label = { Text("明细") },
                     selected = selectedItem == 0,
                     onClick = { selectedItem = 0 }
                 )
                 NavigationBarItem(
-                    icon = { Text("统计") },
+                    icon = { Icon(Icons.Filled.DateRange, contentDescription = "统计") },
                     label = { Text("统计") },
                     selected = selectedItem == 1,
                     onClick = { 
@@ -62,7 +66,7 @@ fun HomeScreen(
                     }
                 )
                 NavigationBarItem(
-                    icon = { Text("分类") },
+                    icon = { Icon(Icons.Filled.Settings, contentDescription = "分类") },
                     label = { Text("分类") },
                     selected = selectedItem == 2,
                     onClick = { 
@@ -72,7 +76,7 @@ fun HomeScreen(
                     }
                 )
                 NavigationBarItem(
-                    icon = { Text("我的") },
+                    icon = { Icon(Icons.Filled.Person, contentDescription = "我的") },
                     label = { Text("我的") },
                     selected = selectedItem == 3,
                     onClick = { 
@@ -85,7 +89,7 @@ fun HomeScreen(
         },
         floatingActionButton = {
             FloatingActionButton(onClick = onNavigateToAddBill) {
-                Icon(Icons.Default.Add, contentDescription = "记一笔")
+                Icon(Icons.Filled.Add, contentDescription = "记一笔")
             }
         }
     ) { paddingValues ->
