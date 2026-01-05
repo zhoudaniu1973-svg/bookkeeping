@@ -187,15 +187,25 @@ fun HomeHeader(
             
             Spacer(modifier = Modifier.height(16.dp))
             
-            // Summary
+            // Summary - 三列布局：支出、收入、差额
+            val balance = income - expense
             Row(modifier = Modifier.fillMaxWidth()) {
                 Column(modifier = Modifier.weight(1f)) {
-                    Text("本月支出", color = Color.White.copy(alpha = 0.8f))
-                    Text("¥${String.format("%.2f", expense)}", color = Color.White, fontSize = 24.sp, fontWeight = FontWeight.Bold)
+                    Text("本月支出", color = Color.White.copy(alpha = 0.8f), fontSize = 12.sp)
+                    Text("¥${String.format("%.2f", expense)}", color = Color.White, fontSize = 18.sp, fontWeight = FontWeight.Bold)
                 }
                 Column(modifier = Modifier.weight(1f)) {
-                    Text("本月收入", color = Color.White.copy(alpha = 0.8f))
-                    Text("¥${String.format("%.2f", income)}", color = Color.White, fontSize = 24.sp, fontWeight = FontWeight.Bold)
+                    Text("本月收入", color = Color.White.copy(alpha = 0.8f), fontSize = 12.sp)
+                    Text("¥${String.format("%.2f", income)}", color = Color.White, fontSize = 18.sp, fontWeight = FontWeight.Bold)
+                }
+                Column(modifier = Modifier.weight(1f)) {
+                    Text("收支差额", color = Color.White.copy(alpha = 0.8f), fontSize = 12.sp)
+                    Text(
+                        text = if (balance >= 0) "+¥${String.format("%.2f", balance)}" else "-¥${String.format("%.2f", -balance)}",
+                        color = if (balance >= 0) IncomeGreen else Color.White,
+                        fontSize = 18.sp,
+                        fontWeight = FontWeight.Bold
+                    )
                 }
             }
         }

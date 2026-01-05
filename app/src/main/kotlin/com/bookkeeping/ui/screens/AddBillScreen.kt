@@ -10,6 +10,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.filled.DateRange
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -133,12 +134,56 @@ fun AddBillScreen(
                         modifier = Modifier.fillMaxWidth()
                     )
                     Spacer(modifier = Modifier.height(8.dp))
-                    Text(
-                        text = "日期: ${SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).format(uiState.billDate)}",
-                        modifier = Modifier.clickable { 
-                            // TODO: Show DatePicker
-                        }
+                    
+                    // 日期选择器
+                    var showDatePicker by remember { mutableStateOf(false) }
+                    val datePickerState = rememberDatePickerState(
+                        initialSelectedDateMillis = uiState.billDate.time
                     )
+                    
+                    // 日期显示按钮 - 点击弹出日期选择器
+                    OutlinedButton(
+                        onClick = { showDatePicker = true },
+                        modifier = Modifier.fillMaxWidth(),
+                        shape = RoundedCornerShape(4.dp)
+                    ) {
+                        Icon(
+                            Icons.Filled.DateRange,
+                            contentDescription = "选择日期",
+                            modifier = Modifier.size(20.dp)
+                        )
+                        Spacer(modifier = Modifier.width(8.dp))
+                        Text(
+                            text = "日期: ${SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).format(uiState.billDate)}",
+                            style = MaterialTheme.typography.bodyMedium
+                        )
+                    }
+                    
+                    // 日期选择弹窗
+                    if (showDatePicker) {
+                        DatePickerDialog(
+                            onDismissRequest = { showDatePicker = false },
+                            confirmButton = {
+                                TextButton(
+                                    onClick = {
+                                        datePickerState.selectedDateMillis?.let { millis ->
+                                            viewModel.setDate(Date(millis))
+                                        }
+                                        showDatePicker = false
+                                    }
+                                ) {
+                                    Text("确定")
+                                }
+                            },
+                            dismissButton = {
+                                TextButton(onClick = { showDatePicker = false }) {
+                                    Text("取消")
+                                }
+                            }
+                        ) {
+                            DatePicker(state = datePickerState)
+                        }
+                    }
                 }
                 
                 // Save Button

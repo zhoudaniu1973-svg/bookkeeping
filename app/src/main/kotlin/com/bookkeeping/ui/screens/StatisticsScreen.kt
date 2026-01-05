@@ -205,16 +205,26 @@ fun StatisticsHeader(
             
             Spacer(modifier = Modifier.height(16.dp))
             
-            // 收支汇总
+            // 收支汇总 - 三列布局：支出、收入、差额
             val periodLabel = if (statsPeriod == StatsPeriod.MONTH) "本月" else "本年"
+            val balance = income - expense
             Row(modifier = Modifier.fillMaxWidth()) {
                 Column(modifier = Modifier.weight(1f)) {
-                    Text("${periodLabel}支出", color = Color.White.copy(alpha = 0.8f))
-                    Text("¥${String.format("%.2f", expense)}", color = Color.White, fontSize = 24.sp, fontWeight = FontWeight.Bold)
+                    Text("${periodLabel}支出", color = Color.White.copy(alpha = 0.8f), fontSize = 12.sp)
+                    Text("¥${String.format("%.2f", expense)}", color = Color.White, fontSize = 18.sp, fontWeight = FontWeight.Bold)
                 }
                 Column(modifier = Modifier.weight(1f)) {
-                    Text("${periodLabel}收入", color = Color.White.copy(alpha = 0.8f))
-                    Text("¥${String.format("%.2f", income)}", color = Color.White, fontSize = 24.sp, fontWeight = FontWeight.Bold)
+                    Text("${periodLabel}收入", color = Color.White.copy(alpha = 0.8f), fontSize = 12.sp)
+                    Text("¥${String.format("%.2f", income)}", color = Color.White, fontSize = 18.sp, fontWeight = FontWeight.Bold)
+                }
+                Column(modifier = Modifier.weight(1f)) {
+                    Text("差额", color = Color.White.copy(alpha = 0.8f), fontSize = 12.sp)
+                    Text(
+                        text = if (balance >= 0) "+¥${String.format("%.2f", balance)}" else "-¥${String.format("%.2f", -balance)}",
+                        color = if (balance >= 0) IncomeGreen else Color.White,
+                        fontSize = 18.sp,
+                        fontWeight = FontWeight.Bold
+                    )
                 }
             }
         }
