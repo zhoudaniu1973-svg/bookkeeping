@@ -51,11 +51,13 @@ class HomeViewModel : ViewModel() {
                     else expense += it.amount
                 }
                 
-                // 按日期分组
+                // 按日期分组，使用正确的数值比较进行降序排序（最新日期在最上面）
                 val grouped = filteredBills.groupBy { 
                     val cal = Calendar.getInstance().apply { time = it.billDate }
                     Triple(cal.get(Calendar.YEAR), cal.get(Calendar.MONTH) + 1, cal.get(Calendar.DAY_OF_MONTH))
-                }.toSortedMap(compareByDescending { Triple(it.first, it.second, it.third).toString() }) // 简单排序，实际可能需要更复杂的比较器
+                }.toSortedMap(compareByDescending<Triple<Int, Int, Int>> { it.first }
+                    .thenByDescending { it.second }
+                    .thenByDescending { it.third })
                 
                 _uiState.value = _uiState.value.copy(
                     isLoading = false,
