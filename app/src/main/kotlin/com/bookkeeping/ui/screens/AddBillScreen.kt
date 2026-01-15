@@ -98,6 +98,18 @@ fun AddBillScreen(
                     textStyle = AmountLarge
                 )
                 
+                // Note Input - 放在金额下方，避免被输入法遮挡
+                OutlinedTextField(
+                    value = uiState.note,
+                    onValueChange = { viewModel.setNote(it) },
+                    label = { Text("备注") },
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = 16.dp)
+                        .padding(top = 8.dp),
+                    singleLine = true
+                )
+                
                 // Category Grid
                 Text(
                     text = "分类",
@@ -121,20 +133,12 @@ fun AddBillScreen(
                     }
                 }
                 
-                // Note & Date
+                // Date Picker Section
                 Column(
                     modifier = Modifier
                         .fillMaxWidth()
                         .padding(16.dp)
                 ) {
-                    OutlinedTextField(
-                        value = uiState.note,
-                        onValueChange = { viewModel.setNote(it) },
-                        label = { Text("备注") },
-                        modifier = Modifier.fillMaxWidth()
-                    )
-                    Spacer(modifier = Modifier.height(8.dp))
-                    
                     // 日期选择器
                     var showDatePicker by remember { mutableStateOf(false) }
                     val datePickerState = rememberDatePickerState(
