@@ -14,11 +14,15 @@ import com.bookkeeping.ui.screens.*
 import com.bookkeeping.viewmodel.AuthViewModel
 import com.bookkeeping.viewmodel.BillViewModel
 import com.bookkeeping.viewmodel.HomeViewModel
+import com.bookkeeping.viewmodel.RecurringBillViewModel
 
 @Composable
 fun AppNavigation() {
     val navController = rememberNavController()
     val authViewModel: AuthViewModel = viewModel()
+    
+    // 共享的周期性账单 ViewModel
+    val recurringBillViewModel: RecurringBillViewModel = viewModel()
     
     // Check auth state
     val currentUser = authViewModel.currentUser
@@ -118,9 +122,32 @@ fun AppNavigation() {
                             popUpTo(Screen.Home.route) { inclusive = true }
                         }
                     },
+                    onBack = { navController.popBackStack() },
+                    onNavigateToRecurringBills = { navController.navigate(Screen.RecurringBills.route) }
+                )
+            }
+            
+            // 周期性账单列表
+            composable(Screen.RecurringBills.route) {
+                RecurringBillsScreen(
+                    onBack = { navController.popBackStack() },
+                    onAddNew = { navController.navigate(Screen.AddRecurringBill.route) },
+                    onEdit = { recurring ->
+                        recurringBillViewModel.loadForEdit(recurring)
+                        navController.navigate(Screen.AddRecurringBill.route)
+                    },
+                    viewModel = recurringBillViewModel
+                )
+            }
+            
+            // 添加/编辑周期性账单
+            composable(Screen.AddRecurringBill.route) {
+                AddRecurringBillScreen(
+                    viewModel = recurringBillViewModel,
                     onBack = { navController.popBackStack() }
                 )
             }
         }
     }
 }
+

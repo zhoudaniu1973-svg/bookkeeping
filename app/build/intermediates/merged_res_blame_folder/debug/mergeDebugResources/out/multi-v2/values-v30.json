@@ -1,10 +1,10 @@
 {
     "logs": [
         {
-            "outputFile": "com.bookkeeping.app-mergeDebugResources-61:/values-v30/values-v30.xml",
+            "outputFile": "com.bookkeeping.app-mergeDebugResources-65:/values-v30/values-v30.xml",
             "map": [
                 {
-                    "source": "C:\\Users\\zhoud\\.gradle\\caches\\8.14.3\\transforms\\c065407b9e7857abca9218017a3b229a\\transformed\\material3\\res\\values-v30\\values-v30.xml",
+                    "source": "C:\\Users\\zhoud\\.gradle\\caches\\8.14.3\\transforms\\c3cf9c93d8dc5b8bc6eb019cb078bff7\\transformed\\material3\\res\\values-v30\\values-v30.xml",
                     "from": {
                         "startLines": "2",
                         "startColumns": "4",

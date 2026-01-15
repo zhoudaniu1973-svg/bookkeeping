@@ -7,6 +7,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.automirrored.filled.ArrowForward
 import androidx.compose.material.icons.automirrored.filled.ExitToApp
+import androidx.compose.material.icons.filled.Repeat
 import androidx.compose.material.icons.filled.Share
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
@@ -27,6 +28,7 @@ import com.bookkeeping.viewmodel.SettingsViewModel
 fun SettingsScreen(
     onLogout: () -> Unit,
     onBack: () -> Unit,
+    onNavigateToRecurringBills: () -> Unit = {},
     authViewModel: AuthViewModel = viewModel(),
     settingsViewModel: SettingsViewModel = viewModel()
 ) {
@@ -78,6 +80,14 @@ fun SettingsScreen(
             Spacer(modifier = Modifier.height(16.dp))
 
             // Actions
+            SettingsItem(
+                icon = Icons.Filled.Repeat,
+                title = "周期性账单",
+                onClick = onNavigateToRecurringBills
+            )
+            
+            Spacer(modifier = Modifier.height(8.dp))
+            
             SettingsItem(
                 icon = Icons.Filled.Share,
                 title = "导出账单数据 (CSV)",
