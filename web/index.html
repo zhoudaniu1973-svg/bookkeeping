@@ -1,0 +1,82 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <meta name="theme-color" content="#173026">
+    <title>Bookkeeping Web</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@400;500;700;800&family=Space+Grotesk:wght@500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="./styles.css?v=20260320-1339">
+</head>
+<body>
+    <div class="app-shell">
+        <header class="hero panel">
+            <div class="hero__content">
+                <p class="eyebrow">BOOKKEEPING / WEB MVP</p>
+                <h1>把记账软件搬进浏览器</h1>
+                <p class="hero__summary">
+                    这个版本沿用 Android 端的账单、分类、统计、登录和周期账单模型。
+                    配好 Firebase Web App 后，网页端会和 App 共用同一套用户和 Firestore 数据。
+                </p>
+            </div>
+            <div class="hero__actions">
+                <div id="session-panel" class="status-card"></div>
+                <div class="hero__action-grid">
+                    <button class="button button--primary" type="button" data-action="export">导出 JSON</button>
+                    <button class="button button--ghost" type="button" data-action="export-csv">导出 CSV</button>
+                    <label class="button button--secondary" for="import-file">导入 JSON</label>
+                    <button class="button button--ghost" type="button" data-action="generate-due">生成到期账单</button>
+                    <button class="button button--ghost" type="button" data-action="restore-defaults">恢复默认分类</button>
+                </div>
+            </div>
+        </header>
+
+        <div id="notice" class="notice notice--hidden" aria-live="polite"></div>
+
+        <section id="auth-panel" class="panel auth-panel"></section>
+
+        <main class="layout">
+            <section class="workspace panel">
+                <div class="workspace__head">
+                    <nav class="tabs" aria-label="主导航">
+                        <button class="tab" type="button" data-view-switch="overview"><span class="tab__icon">🏠</span><span class="tab__label">总览</span></button>
+                        <button class="tab is-active" type="button" data-view-switch="bills"><span class="tab__icon">✍️</span><span class="tab__label">账单</span></button>
+                        <button class="tab" type="button" data-view-switch="stats"><span class="tab__icon">📈</span><span class="tab__label">统计</span></button>
+                        <button class="tab" type="button" data-view-switch="categories"><span class="tab__icon">🧩</span><span class="tab__label">分类</span></button>
+                        <button class="tab" type="button" data-view-switch="recurring"><span class="tab__icon">🔁</span><span class="tab__label">周期</span></button>
+                    </nav>
+
+                    <div class="toolbar">
+                        <label class="field field--compact">
+                            <span>查看月份</span>
+                            <input id="active-month" type="month">
+                        </label>
+                        <div id="toolbar-meta" class="toolbar__meta"></div>
+                    </div>
+                </div>
+
+                <section id="view-overview" class="view"></section>
+                <section id="view-bills" class="view is-active"></section>
+                <section id="view-stats" class="view"></section>
+                <section id="view-categories" class="view"></section>
+                <section id="view-recurring" class="view"></section>
+            </section>
+
+            <aside id="sidebar" class="sidebar panel"></aside>
+        </main>
+
+        <div id="mobile-nav" class="mobile-nav mobile-nav--hidden"></div>
+        <div id="mobile-toolbox" class="mobile-toolbox mobile-toolbox--hidden"></div>
+    </div>
+
+    <input id="import-file" type="file" accept=".json,application/json" hidden>
+    <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
+    <script src="./firebase-config.js?v=20260320-1339"></script>
+    <script src="./firebase-service.js?v=20260320-1339"></script>
+    <script src="./app.js?v=20260320-1339" defer></script>
+</body>
+</html>

@@ -1,49 +1,105 @@
-# 📒 个人记账 App (Bookkeeping)
+# Bookkeeping
 
-这是一个基于 Android 原生开发的个人记账应用，使用最新的 **Kotlin** 和 **Jetpack Compose** 技术栈构建，界面现代简洁，并集成 **Firebase** 实现云端数据同步。
+一个同时包含 Android App 和 Web 版的个人记账项目。两端共用同一个 Firebase 项目，登录后可以同步账单、分类、统计和周期账单数据。
 
-## ✨ 功能特点
+当前线上地址：
 
-- **云端同步**：通过 Firebase Authentication 和 Firestore 实现数据实时云同步，多设备无缝切换。
-- **账单记录**：支持快速记录收入和支出，自定义金额、类别和备注。
-- **分类管理**：内置多种常用分类（如餐饮、交通、购物等），支持自定义添加和管理。
-- **统计图表**：提供直观的统计报表，按月查看收支情况，帮助你更好地掌握财务状况。
-- **预算设置**：支持设置每月预算，实时监控消费进度（开发中）。
-- **完全免费**：利用 Firebase 免费套餐，个人使用无额外成本。
+- [https://angular-expanse-235611.web.app](https://angular-expanse-235611.web.app)
 
-## 🛠️ 技术栈
+## 当前能力
 
-- **语言**: Kotlin
-- **UI 框架**: Jetpack Compose (Material Design 3)
-- **架构**: MVVM (Model-View-ViewModel)
-- **云服务 (Firebase)**:
-    - **Authentication**: 用户注册与登录
-    - **Firestore**: NoSQL 云数据库
-- **构建工具**: Gradle (Kotlin DSL)
+- Android 端基于 Kotlin + Jetpack Compose
+- Web 端支持手机浏览器记账和浏览
+- Firebase Authentication 邮箱密码登录
+- Firestore 云端同步
+- 账单新增、编辑、删除
+- 收入 / 支出分类管理
+- 月度 / 年度统计
+- 周期账单与到期账单生成
+- JSON 导入导出
+- CSV 导出
 
-## 🚀 快速开始
+## 项目结构
 
-### 前置要求
-- Android Studio Ladybug 或更高版本
+```text
+app/                Android 客户端
+web/                Web 客户端静态文件
+firebase.json       Firebase Hosting 配置
+.firebaserc         Firebase 项目绑定
+```
+
+## Android 本地运行
+
+前提：
+
+- Android Studio
 - JDK 17+
-- 配置好的 Firebase 项目 (`google-services.json`)
+- `app/google-services.json`
 
-### 安装步骤
+步骤：
 
-1. **克隆仓库**
-   ```bash
-   git clone https://github.com/zhoudaniu1973-svg/bookkeeping.git
-   ```
+```bash
+git clone https://github.com/zhoudaniu1973-svg/bookkeeping.git
+cd bookkeeping
+```
 
-2. **配置 Firebase**
-   - 在 Firebase 控制台创建项目。
-   - 启用 **Authentication** (邮箱/密码登录)。
-   - 启用 **Firestore Database**。
-   - 下载 `google-services.json` 文件并放入 `app/` 目录下。
+用 Android Studio 打开项目后同步 Gradle，选择模拟器或真机运行即可。
 
-3. **构建运行**
-   使用 Android Studio 打开项目，同步 Gradle，连接模拟器或真机即可运行。
+## Web 本地运行
 
-## 📄 许可证
+在仓库根目录执行：
 
-本项目仅供学习和个人使用。
+```bash
+cd web
+python -m http.server 8000
+```
+
+然后打开：
+
+- [http://localhost:8000](http://localhost:8000)
+
+如果要测试和 App 同步，请先完成 Firebase Web 配置。
+
+## Firebase 配置
+
+这个项目当前绑定的 Firebase 项目是：
+
+- `projectId`: `angular-expanse-235611`
+
+Web 端配置文件：
+
+- [web/firebase-config.js](web/firebase-config.js)
+- [web/firebase-config.example.js](web/firebase-config.example.js)
+
+需要确认：
+
+1. Firebase Authentication 已开启“电子邮件/密码”
+2. `Authorized domains` 包含 `localhost`
+3. 如果使用 Hosting 域名，授权域名里也包含：
+   - `angular-expanse-235611.web.app`
+   - `angular-expanse-235611.firebaseapp.com`
+
+## 部署 Web 到 Firebase Hosting
+
+首次使用先登录 Firebase CLI：
+
+```bash
+npx firebase-tools login
+```
+
+部署命令：
+
+```bash
+npx firebase-tools deploy --only hosting
+```
+
+当前 Hosting 配置见：
+
+- [firebase.json](firebase.json)
+- [.firebaserc](.firebaserc)
+
+## Web 端说明
+
+Web 端的详细使用说明见：
+
+- [web/README.md](web/README.md)
