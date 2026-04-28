@@ -39,6 +39,7 @@ const state = {
         statsType: "EXPENSE",
         mobileLayout: false,
         mobileToolsOpen: false,
+        categoryDetail: null,
         billForm: createEmptyBillForm("EXPENSE"),
         categoryForm: createEmptyCategoryForm("EXPENSE"),
         recurringForm: createEmptyRecurringForm("EXPENSE"),
@@ -162,6 +163,7 @@ function handleClick(event) {
     if (target.dataset.viewSwitch) {
         state.ui.view = target.dataset.viewSwitch;
         state.ui.mobileToolsOpen = false;
+        state.ui.categoryDetail = null;
         render();
         return;
     }
@@ -242,7 +244,15 @@ function runAction(action, dataset) {
             state.ui.mobileToolsOpen = false;
             render();
             break;
+        case "show-category-detail":
+            showCategoryDetail(dataset);
+            break;
+        case "close-category-detail":
+            state.ui.categoryDetail = null;
+            render();
+            break;
         case "logout":
+            state.ui.categoryDetail = null;
             void logoutCurrentUser();
             break;
         case "send-password-reset":
@@ -332,6 +342,19 @@ function runRole(role, dataset) {
     }
 }
 
+function showCategoryDetail(dataset) {
+    const categoryId = String(dataset.categoryId || "");
+    if (!categoryId) return;
+
+    state.ui.categoryDetail = {
+        categoryId,
+        type: dataset.categoryType === "INCOME" ? "INCOME" : "EXPENSE",
+        period: dataset.period === "year" ? "year" : "month",
+    };
+    state.ui.mobileToolsOpen = false;
+    render();
+}
+
 function render() {
     ensureFormDefaults();
     syncViewportMode();
@@ -362,6 +385,7 @@ function renderAppShell() {
     renderAuthPanel();
     renderMobileNav();
     renderMobileToolbox();
+    renderCategoryDetailPanel();
 }
 
 function renderSessionPanel() {
@@ -680,7 +704,7 @@ function renderOverview(monthBills, summary) {
                         <p>按分类看本月支出结构</p>
                     </div>
                 </div>
-                ${expenseStats.length ? renderBarList(expenseStats.slice(0, 5)) : renderEmpty("暂无支出数据。")}
+                ${expenseStats.length ? renderBarList(expenseStats.slice(0, 5), { period: "month" }) : renderEmpty("暂无支出数据。")}
             </article>
 
             <article class="panel-card">
@@ -690,7 +714,7 @@ function renderOverview(monthBills, summary) {
                         <p>按分类看本月收入结构</p>
                     </div>
                 </div>
-                ${incomeStats.length ? renderBarList(incomeStats.slice(0, 4)) : renderEmpty("暂无收入数据。")}
+                ${incomeStats.length ? renderBarList(incomeStats.slice(0, 4), { period: "month" }) : renderEmpty("暂无收入数据。")}
             </article>
         </div>
     `;
@@ -810,7 +834,7 @@ function renderStats() {
                         <p>按金额从高到低排序</p>
                     </div>
                 </div>
-                ${categoryStats.length ? renderBarList(categoryStats) : renderEmpty("当前统计范围没有数据。")}
+                ${categoryStats.length ? renderBarList(categoryStats, { period: state.ui.statsPeriod }) : renderEmpty("当前统计范围没有数据。")}
             </article>
 
             <article class="panel-card">
@@ -1097,6 +1121,58 @@ function renderMobileToolbox() {
     `;
 }
 
+function renderCategoryDetailPanel() {
+    const target = document.getElementById("category-detail-panel");
+    if (!target) return;
+
+    const detail = state.ui.categoryDetail;
+    if (!detail) {
+        target.className = "category-detail category-detail--hidden";
+        target.innerHTML = "";
+        return;
+    }
+
+    const scopeBills = detail.period === "year"
+        ? getYearBills(state.ui.activeMonth.slice(0, 4))
+        : getMonthBills(state.ui.activeMonth);
+    const bills = sortBills(scopeBills.filter((bill) => (
+        bill.categoryId === detail.categoryId && bill.type === detail.type
+    )));
+    const category = state.data.categories.find((item) => item.id === detail.categoryId) || {
+        id: detail.categoryId,
+        type: detail.type,
+        name: bills[0]?.categoryName || "分类",
+        icon: bills[0]?.categoryIcon || "🧾",
+        color: bills[0]?.categoryColor || "#4A90D9",
+    };
+    const total = bills.reduce((sum, bill) => sum + bill.amount, 0);
+    const scopeLabel = detail.period === "year"
+        ? `${state.ui.activeMonth.slice(0, 4)} 年`
+        : formatMonthLabel(state.ui.activeMonth);
+
+    target.className = "category-detail is-open";
+    target.innerHTML = `
+        <button class="category-detail__backdrop" type="button" data-action="close-category-detail" aria-label="关闭分类明细"></button>
+        <section class="category-detail__sheet" role="dialog" aria-modal="true" aria-label="分类明细">
+            <div class="category-detail__head">
+                <div class="category-detail__title">
+                    <span class="icon-pill" style="background:${escapeAttribute(withOpacity(category.color, 0.16))};">${escapeHtml(category.icon)}</span>
+                    <div>
+                        <strong>${escapeHtml(category.name)}</strong>
+                        <p>${escapeHtml(scopeLabel)} · ${escapeHtml(BILL_TYPE_LABELS[detail.type])}</p>
+                    </div>
+                </div>
+                <button class="button button--ghost button--compact" type="button" data-action="close-category-detail">关闭</button>
+            </div>
+            <div class="category-detail__summary">
+                <span>合计 ${escapeHtml(formatCurrency(total))}</span>
+                <span>${bills.length} 笔</span>
+            </div>
+            ${bills.length ? `<div class="category-detail__list list-stack">${bills.map(renderBillRow).join("")}</div>` : renderEmpty("这个分类当前范围没有账单。")}
+        </section>
+    `;
+}
+
 function renderMetricCard(label, value, modifier, subtle) {
     return `
         <article class="metric-card ${modifier}">
@@ -1240,17 +1316,25 @@ function renderRecurringRow(item) {
     `;
 }
 
-function renderBarList(items) {
+function renderBarList(items, options = {}) {
+    const period = options.period === "year" ? "year" : "month";
     return `
         <div class="stats-list">
             ${items.map((item) => `
-                <article class="bar-card">
+                <button
+                    class="bar-card bar-card--button"
+                    type="button"
+                    data-action="show-category-detail"
+                    data-category-id="${escapeAttribute(item.category.id)}"
+                    data-category-type="${escapeAttribute(item.category.type)}"
+                    data-period="${escapeAttribute(period)}"
+                >
                     <div class="bar-card__top">
                         <strong>${escapeHtml(item.category.icon)} ${escapeHtml(item.category.name)}</strong>
                         <span>${escapeHtml(formatCurrency(item.amount))} · ${Math.round(item.percentage * 100)}%</span>
                     </div>
                     <div class="bar"><span style="width:${Math.max(item.percentage * 100, 4)}%; background:${escapeAttribute(item.category.color)};"></span></div>
-                </article>
+                </button>
             `).join("")}
         </div>
     `;
@@ -1494,6 +1578,7 @@ function editBill(id) {
     if (!bill) return;
 
     state.ui.view = "bills";
+    state.ui.categoryDetail = null;
     state.ui.billForm = {
         id: bill.id,
         type: bill.type,
